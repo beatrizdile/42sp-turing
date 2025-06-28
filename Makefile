@@ -9,10 +9,10 @@ $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
 $(OBJ): $(SRC) | $(BUILD_DIR)
-	opam exec -- ocamlopt -c -o $(OBJ) $(SRC)
+	opam exec -- ocamlfind ocamlopt -package yojson -c -o $(OBJ) $(SRC)
 
 $(OUTPUT): $(OBJ)
-	opam exec -- ocamlopt -o $(OUTPUT) $(OBJ)
+	opam exec -- ocamlfind ocamlopt -package yojson -linkpkg -o $(OUTPUT) $(OBJ)
 
 clean:
 	rm -f $(BUILD_DIR)/*.cmx $(BUILD_DIR)/*.o $(BUILD_DIR)/*.cmi
@@ -23,3 +23,5 @@ fclean: clean
 re: fclean all
 
 .PHONY: all clean fclean re
+
+# TODO: install opam to run on evaluator's machine
