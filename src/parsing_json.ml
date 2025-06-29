@@ -35,7 +35,12 @@ let turing_machine_from_json json =
   ) transitions_json;
   {
     name = json |> member "name" |> to_string;
-    alphabet = json |> member "alphabet" |> to_list |> List.map to_string;
+    alphabet = (
+      let chars = json |> member "alphabet" |> to_list |> List.map to_string in
+      if List.exists (fun s -> String.length s <> 1) chars then
+        failwith "All elements of 'alphabet' must be single characters";
+      chars
+    );
     blank = json |> member "blank" |> to_string;
     states = json |> member "states" |> to_list |> List.map to_string;
     initial = json |> member "initial" |> to_string;
