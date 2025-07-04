@@ -1,0 +1,18 @@
+# Source directories
+S src
+S build
+
+# Build directory
+B build
+
+# Include build directory for compiled modules
+B _build
+
+# External packages
+PKG yojson
+
+# Standard library
+PKG unix
+PKG str
+
+FLG -I build

@@ -1,0 +1,35 @@
+# Created by https://www.toptal.com/developers/gitignore/api/ocaml
+# Edit at https://www.toptal.com/developers/gitignore?templates=ocaml
+
+ft_turing
+
+### OCaml ###
+*.annot
+*.cmo
+*.cma
+*.cmi
+*.a
+*.o
+*.cmx
+*.cmxs
+*.cmxa
+
+# ocamlbuild working directory
+_build/
+build/
+
+# ocamlbuild targets
+*.byte
+*.native
+
+# oasis generated files
+setup.data
+setup.log
+
+# Dune generated files
+*.install
+
+# Local OPAM switch
+_opam/
+
+# End of https://www.toptal.com/developers/gitignore/api/ocaml

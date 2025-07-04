@@ -26,6 +26,21 @@ fclean: clean
 
 re: fclean all
 
-.PHONY: all clean fclean re
+format:
+	@echo "Formatting OCaml files..."
+	@for file in $(SRC_FILES); do \
+		echo "Formatting $$file"; \
+		opam exec -- ocamlformat --inplace $$file; \
+	done
+
+# Check if files are properly formatted (useful for CI)
+format-check:
+	@echo "Checking OCaml files formatting..."
+	@for file in $(SRC_FILES); do \
+		echo "Checking $$file"; \
+		opam exec -- ocamlformat --check $$file; \
+	done
+
+.PHONY: all clean fclean re format format-check
 
 # TODO: install opam to run on evaluator's machine

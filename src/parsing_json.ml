@@ -29,18 +29,20 @@ let transitions_of_json json =
 let turing_machine_from_json json =
   let transitions_tbl = Hashtbl.create 10 in
   let transitions_json = json |> member "transitions" |> to_assoc in
-  List.iter (fun (state, trans_list_json) ->
-    let trans_list = trans_list_json |> to_list |> List.map transitions_of_json in
-    Hashtbl.add transitions_tbl state trans_list
-  ) transitions_json;
+  List.iter
+    (fun (state, trans_list_json) ->
+      let trans_list =
+        trans_list_json |> to_list |> List.map transitions_of_json
+      in
+      Hashtbl.add transitions_tbl state trans_list)
+    transitions_json;
   {
     name = json |> member "name" |> to_string;
-    alphabet = (
-      let chars = json |> member "alphabet" |> to_list |> List.map to_string in
-      if List.exists (fun s -> String.length s <> 1) chars then
-        failwith "All elements of 'alphabet' must be single characters";
-      chars
-    );
+    alphabet =
+      (let chars = json |> member "alphabet" |> to_list |> List.map to_string in
+       if List.exists (fun s -> String.length s <> 1) chars then
+         failwith "All elements of 'alphabet' must be single characters";
+       chars);
     blank = json |> member "blank" |> to_string;
     states = json |> member "states" |> to_list |> List.map to_string;
     initial = json |> member "initial" |> to_string;
@@ -57,7 +59,8 @@ let print_turing_machine tm =
   let center_text text =
     let len = String.length text in
     let padding = (76 - len) / 2 in
-    Printf.sprintf "*%s%s%s*" (String.make padding ' ') text (String.make (76 - len - padding) ' ')
+    Printf.sprintf "*%s%s%s*" (String.make padding ' ') text
+      (String.make (76 - len - padding) ' ')
   in
   Printf.printf "%s\n" border;
   Printf.printf "%s\n" (center_text "");
@@ -68,9 +71,11 @@ let print_turing_machine tm =
   Printf.printf "States  : [ %s ]\n" (String.concat ", " tm.states);
   Printf.printf "Initial : %s\n" tm.initial;
   Printf.printf "Finals  : [ %s ]\n" (String.concat ", " tm.finals);
-  Hashtbl.iter (fun state transitions ->
-    List.iter (fun t ->
-      Printf.printf "(%s, %s) -> (%s, %s, %s)\n"
-        state t.read t.to_state t.write t.action
-    ) transitions
-  ) tm.transitions
+  Hashtbl.iter
+    (fun state transitions ->
+      List.iter
+        (fun t ->
+          Printf.printf "(%s, %s) -> (%s, %s, %s)\n" state t.read t.to_state
+            t.write t.action)
+        transitions)
+    tm.transitions
