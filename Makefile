@@ -19,10 +19,17 @@ $(OUTPUT): $(OBJ_FILES)
 	opam exec -- ocamlfind ocamlopt -package yojson -linkpkg -I $(BUILD_DIR) -o $@ $(OBJ_FILES)
 
 clean:
-	rm -f $(BUILD_DIR)/*.cmx $(BUILD_DIR)/*.o $(BUILD_DIR)/*.cmi
+	rm -f $(BUILD_DIR)/*.cmx $(BUILD_DIR)/*.o $(BUILD_DIR)/*.cmi tests/*.cmi tests/*.cmo 
 
 fclean: clean
-	rm -rf $(BUILD_DIR) $(OUTPUT)
+	rm -rf $(BUILD_DIR) $(OUTPUT) tests/test_runner
+
+test: $(BUILD_DIR)/parsing_json.cmo
+	opam exec -- ocamlfind ocamlc -package yojson -linkpkg -I build build/parsing_json.cmo tests/parsing_json_test.ml -o tests/test_runner
+	./tests/test_runner
+
+$(BUILD_DIR)/parsing_json.cmo: $(SRC_DIR)/parsing_json.ml | $(BUILD_DIR)
+	opam exec -- ocamlfind ocamlc -package yojson -I $(BUILD_DIR) -c -o $@ $<
 
 re: fclean all
 

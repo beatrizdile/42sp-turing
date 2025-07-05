@@ -27,6 +27,5 @@ let () =
       let machine = Parsing_json.turing_machine_from_json json in
       Parsing_json.print_turing_machine machine
   | _ ->
-      prerr_endline "Error: you must provide exactly two positional arguments.";
       print_help progname;
       exit 1
