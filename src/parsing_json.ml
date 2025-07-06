@@ -1,11 +1,13 @@
 open Map
 open Yojson.Safe.Util
 
+type action_type = RIGHT | LEFT
+
 type transitions = {
   read : string;
   to_state : string;
   write : string;
-  action : string;
+  action : action_type;
 }
 
 type turing_machine = {
@@ -18,20 +20,55 @@ type turing_machine = {
   transitions : (string, transitions list) Hashtbl.t;
 }
 
-let check_single_char s =
-  if String.length s <> 1 then
-    failwith "All elements of 'alphabet' must be single characters"
+let action_to_sting = function
+  | RIGHT -> "RIGHT"
+  | LEFT -> "LEFT"
 
-let check_single_char_list lst =
-  List.iter check_single_char lst
+let check_single_char s field =
+  if String.length s <> 1 then
+    failwith (Printf.sprintf "All elements of '%s' must be single characters" field)
+
+let check_single_char_list lst field =
+  List.iter (fun s -> check_single_char s field) lst
 
 let transitions_of_json json =
+  let read = json |> member "read" |> to_string in
+  check_single_char read "read";
+
+  let write = json |> member "write" |> to_string in
+  check_single_char write "write";
   {
-    read = json |> member "read" |> to_string;
+    read = read;
     to_state = json |> member "to_state" |> to_string;
-    write = json |> member "write" |> to_string;
-    action = json |> member "action" |> to_string;
+    write = write;
+    action = match json |> member "action" |> to_string with
+    | "LEFT" -> LEFT
+    | "RIGHT" -> RIGHT
+    | invalid_action -> failwith (Printf.sprintf "Invalid action type '%s'" invalid_action);
   }
+
+(* Deve verificar se
+  - se o to_state dos transitions existe nos states
+  - O nome de cara transiction precisa estar no states
+  - se o initial existe no states
+  - Se todos os finals existe nos states
+  - se o blank existe no alfabero
+*)
+(* let verify_machine machine = *)
+
+let check_if_in_alphabet str alphabet =
+  try
+    List.find (fun letter -> letter = str) alphabet
+  with
+  | e -> failwith (Printf.sprintf "The elemet '%s' not in alphabet" str)
+
+let verify_machine machine =
+  Hashtbl.iter (fun state transitions ->
+    List.iter (fun t -> 
+      ignore (check_if_in_alphabet t.read machine.alphabet);
+      ignore (check_if_in_alphabet t.write machine.alphabet);
+    ) transitions
+  ) machine.transitions
 
 let turing_machine_from_json json =
   let transitions_tbl = Hashtbl.create 10 in
@@ -44,20 +81,25 @@ let turing_machine_from_json json =
       Hashtbl.add transitions_tbl state trans_list)
     transitions_json;
   let chars = json |> member "alphabet" |> to_list |> List.map to_string in
-  check_single_char_list chars;
-  {
+  check_single_char_list chars "alphabet";
+
+  let blank = json |> member "blank" |> to_string in
+  check_single_char blank "blank";
+  let machine = {
     name = json |> member "name" |> to_string;
     alphabet = chars;
-    blank = json |> member "blank" |> to_string;
+    blank = blank;
     states = json |> member "states" |> to_list |> List.map to_string;
     initial = json |> member "initial" |> to_string;
     finals = json |> member "finals" |> to_list |> List.map to_string;
     transitions = transitions_tbl;
-  }
+  } in
+  verify_machine machine;
+  machine
 
 let print_transition t =
   Printf.printf "    { read = %s; to_state = %s; write = %s; action = %s }\n"
-    t.read t.to_state t.write t.action
+    t.read t.to_state t.write (action_to_sting t.action)
 
 let print_turing_machine tm =
   let border = String.make 80 '*' in
@@ -81,6 +123,6 @@ let print_turing_machine tm =
       List.iter
         (fun t ->
           Printf.printf "(%s, %s) -> (%s, %s, %s)\n" state t.read t.to_state
-            t.write t.action)
+            t.write (action_to_sting t.action))
         transitions)
     tm.transitions
