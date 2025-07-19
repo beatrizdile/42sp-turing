@@ -74,7 +74,7 @@ let invalid_json_read_not_in_alphabet_string = {|
   "finals": ["HALT"],
   "transitions": {
     "q0": [
-      { "read": "R", "to_state": "q1", "write": "1", "action": "RIGHT" }
+      { "read": "R", "to_state": "q0", "write": "1", "action": "RIGHT" }
     ]
   }
 }
@@ -90,7 +90,7 @@ let invalid_json_write_not_in_alphabet_string = {|
   "finals": ["HALT"],
   "transitions": {
     "q0": [
-      { "read": "1", "to_state": "q1", "write": "W", "action": "RIGHT" }
+      { "read": "1", "to_state": "q0", "write": "W", "action": "RIGHT" }
     ]
   }
 }
@@ -106,7 +106,100 @@ let invalid_json_blank_not_in_alphabet_string = {|
   "finals": ["HALT"],
   "transitions": {
     "q0": [
-      { "read": "1", "to_state": "q1", "write": "0", "action": "RIGHT" }
+      { "read": "1", "to_state": "q0", "write": "0", "action": "RIGHT" }
+    ]
+  }
+}
+|}
+
+let invalid_json_finals_states_not_in_states_list = {|
+{
+  "name": "test_machine",
+  "alphabet": ["0", "1", "."],
+  "blank": "0",
+  "states": ["q0", "HALT"],
+  "initial": "q0",
+  "finals": ["HALT", "INVALID"],
+  "transitions": {
+    "q0": [
+      { "read": "1", "to_state": "HALT", "write": "0", "action": "RIGHT" }
+    ]
+  }
+}
+|}
+
+let invalid_json_initial_state_not_in_states_list = {|
+{
+  "name": "test_machine",
+  "alphabet": ["0", "1", "."],
+  "blank": "0",
+  "states": ["q0", "HALT"],
+  "initial": "INVALID",
+  "finals": ["HALT"],
+  "transitions": {
+    "q0": [
+      { "read": "1", "to_state": "q0", "write": "0", "action": "RIGHT" }
+    ]
+  }
+}
+|}
+
+(*
+  Important: the final states don't need to be specified in "transitions", 
+  given that they are the states we stop our machine.
+
+  So, in this example the missing state in transitions is "INVALID" - NOT "other"
+  We don't need to specify "other" because it's a final state of the machine.
+*)
+let invalid_json_states_that_dont_exist_in_transitions = {|
+{
+  "name": "test_machine",
+  "alphabet": ["0", "1", "."],
+  "blank": "0",
+  "states": ["dummy", "other", "INVALID"],
+  "initial": "dummy",
+  "finals": ["other"],
+  "transitions": {
+    "dummy": [
+      { "read": "1", "to_state": "other", "write": "0", "action": "RIGHT" }
+    ]
+  }
+}
+|}
+
+let invalid_json_transitions_that_dont_exist_in_states = {|
+{
+  "name": "test_machine",
+  "alphabet": ["0", "1", "."],
+  "blank": "0",
+  "states": ["dummy", "another"],
+  "initial": "dummy",
+  "finals": ["another"],
+  "transitions": {
+    "dummy": [
+      { "read": "1", "to_state": "another", "write": "0", "action": "RIGHT" }
+    ],
+    "INVALID": [
+      { "read": "1", "to_state": "dummy", "write": "0", "action": "RIGHT" }
+    ]
+  }
+}
+|}
+
+let invalid_json_transitions_to_state_that_dont_exist_in_states = {|
+{
+  "name": "test_machine",
+  "alphabet": ["0", "1", "."],
+  "blank": "0",
+  "states": ["dummy", "other", "another"],
+  "initial": "dummy",
+  "finals": ["other"],
+  "transitions": {
+    "dummy": [
+      { "read": "1", "to_state": "other", "write": "0", "action": "RIGHT" }
+    ],
+    "another": [
+      { "read": "1", "to_state": "INVALID", "write": "0", "action": "RIGHT" }
     ]
   }
 }
@@ -235,6 +328,49 @@ let test_blank_not_in_alphabet_should_throw () =
     (fun () -> ignore (turing_machine_from_json json))
     "the blank attribute that is not in alphabet should raise exception"
 
+let test_initial_state_not_in_states_list_should_throw () =
+  Printf.printf "\n=== test_initial_state_not_in_states_list ===\n";
+
+  let json = Yojson.Safe.from_string invalid_json_initial_state_not_in_states_list in
+  assert_exception_raised 
+    (fun () -> ignore (turing_machine_from_json json))
+    "the initial state that is not in states list should raise exception"
+
+let test_finals_states_not_in_states_list_should_throw () =
+  Printf.printf "\n=== test_finals_states_not_in_states_list ===\n";
+
+  let json = Yojson.Safe.from_string invalid_json_finals_states_not_in_states_list in
+  assert_exception_raised
+    (fun () -> ignore (turing_machine_from_json json))
+    "the final state that is not in states list should raise exception"
+
+(* Important: the final states don't need to be specified in "transitions",
+  given that they are the states we stop our machine. *)
+let test_if_all_states_exist_in_transitions () =
+  Printf.printf "\n=== test_if_all_states_exist_in_transitions ===\n";
+
+  let json = Yojson.Safe.from_string invalid_json_states_that_dont_exist_in_transitions in
+  assert_exception_raised
+    (fun () -> ignore (turing_machine_from_json json))
+    "the state that is not in transitions should raise exception"
+
+let test_if_all_transitions_exist_in_states () =
+  Printf.printf "\n=== test_if_all_transitions_exist_in_states ===\n";
+
+  let json = Yojson.Safe.from_string invalid_json_transitions_that_dont_exist_in_states in
+  assert_exception_raised
+    (fun () -> ignore (turing_machine_from_json json))
+    "the state that is not in transitions should raise exception"
+
+let test_if_transitions_to_state_exist_in_states () =
+  Printf.printf "\n=== test_if_all_transitions_exist_in_states ===\n";
+
+  let json = Yojson.Safe.from_string invalid_json_transitions_to_state_that_dont_exist_in_states in
+  assert_exception_raised
+    (fun () -> ignore (turing_machine_from_json json))
+    "the transitions.to_state that is not in states should raise exception"
+
+
 (* Run all tests *)
 let run_tests () =
   Printf.printf "Starting Parsing_json tests...\n";
@@ -249,6 +385,11 @@ let run_tests () =
   test_read_not_in_alphabet_should_throw ();
   test_write_not_in_alphabet_should_throw ();
   test_blank_not_in_alphabet_should_throw ();
+  test_initial_state_not_in_states_list_should_throw ();
+  test_finals_states_not_in_states_list_should_throw ();
+  test_if_all_states_exist_in_transitions ();
+  test_if_all_transitions_exist_in_states ();
+  test_if_transitions_to_state_exist_in_states ();
   
   Printf.printf "\n================================\n";
   Printf.printf "Tests completed!\n"

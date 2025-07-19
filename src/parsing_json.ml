@@ -48,10 +48,14 @@ let transitions_of_json json =
   }
 
 (* Deve verificar se
-  - Se o to_state dos transitions existe nos states
-  - O nome de cada transiction precisa estar no states
-  - Se o initial existe no states
-  - Se todos os finals existe nos states
+- Se o to_state dos transitions existe nos states
+- Se os states existem em transitions
+- Se todos os transitions existem nos states
+
+states - finals = states that MUST exist in transitions:
+
+["scanright", "eraseone", "subone", "skip", "HALT"] - ["HALT"]
+= ["scanright", "eraseone", "subone", "skip"] -> must be specified in transitions
 *)
 
 let check_if_in_alphabet str alphabet =
