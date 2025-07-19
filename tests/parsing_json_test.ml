@@ -165,10 +165,7 @@ let test_alphabet_with_elements_grater_than_single_letter () =
     (fun () -> ignore (turing_machine_from_json json))
     "the alphabet attribute that contains multi-character strings should raise exception"
 
-(* what is the blank char??? 
-definition: The blank character, must be part of the alphabet, must NOT be part of the
-input *)
-(* this test IS NOT WORKING *)
+(* Blank definition: The blank character, must be part of the alphabet, must NOT be part of the input *)
 let test_blank_greater_than_one_char_should_throw () =
   Printf.printf "\n=== test_blank_greater_than_one_char_should_throw ===\n";
 
@@ -214,38 +211,29 @@ let test_transitions_with_invalid_action_should_throw () =
     (fun () -> ignore (transitions_of_json json))
     "transitions with an action different than LEFT or RIGHT should raise exception"
 
-
-(* Deve verificar se
-  - o read e o write das transitions existe no alfabeto
-  - se o to_state dos transitions existe nos states
-  - O nome de cara transiction precisa estar no states
-  - se o initial existe no states
-  - Se todos os finals existe nos states
-  - se o blank existe no alfabero
-*)
-let test_read_not_in_alphabet_shold_throw () =
+let test_read_not_in_alphabet_should_throw () =
   Printf.printf "\n=== test_read_not_in_alphabet_shold_throw ===\n";
 
   let json = Yojson.Safe.from_string invalid_json_read_not_in_alphabet_string in
   assert_exception_raised 
     (fun () -> ignore (turing_machine_from_json json))
-    "the read attribute that not in alphabet should raise exception"
+    "the read attribute that is not in alphabet should raise exception"
 
-let test_write_not_in_alphabet_shold_throw () =
+let test_write_not_in_alphabet_should_throw () =
   Printf.printf "\n=== test_write_not_in_alphabet_shold_throw ===\n";
 
   let json = Yojson.Safe.from_string invalid_json_write_not_in_alphabet_string in
   assert_exception_raised 
     (fun () -> ignore (turing_machine_from_json json))
-    "the write attribute that not in alphabet should raise exception"
+    "the write attribute that is not in alphabet should raise exception"
 
-let test_blank_not_in_alphabet_shold_throw () =
+let test_blank_not_in_alphabet_should_throw () =
   Printf.printf "\n=== test_blank_not_in_alphabet_shold_throw ===\n";
 
   let json = Yojson.Safe.from_string invalid_json_blank_not_in_alphabet_string in
   assert_exception_raised 
     (fun () -> ignore (turing_machine_from_json json))
-    "the blank attribute that not in alphabet should raise exception"
+    "the blank attribute that is not in alphabet should raise exception"
 
 (* Run all tests *)
 let run_tests () =
@@ -258,9 +246,9 @@ let run_tests () =
   test_transitions_with_read_greater_than_one_char_should_throw ();
   test_transitions_with_write_greater_than_one_char_should_throw ();
   test_transitions_with_invalid_action_should_throw ();
-  test_read_not_in_alphabet_shold_throw ();
-  test_write_not_in_alphabet_shold_throw ();
-  test_blank_not_in_alphabet_shold_throw ();
+  test_read_not_in_alphabet_should_throw ();
+  test_write_not_in_alphabet_should_throw ();
+  test_blank_not_in_alphabet_should_throw ();
   
   Printf.printf "\n================================\n";
   Printf.printf "Tests completed!\n"

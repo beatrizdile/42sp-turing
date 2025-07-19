@@ -24,8 +24,8 @@ let action_to_sting = function
   | RIGHT -> "RIGHT"
   | LEFT -> "LEFT"
 
-let check_single_char s field =
-  if String.length s <> 1 then
+let check_single_char str field =
+  if String.length str <> 1 then
     failwith (Printf.sprintf "All elements of '%s' must be single characters" field)
 
 let check_single_char_list lst field =
@@ -48,13 +48,11 @@ let transitions_of_json json =
   }
 
 (* Deve verificar se
-  - se o to_state dos transitions existe nos states
-  - O nome de cara transiction precisa estar no states
-  - se o initial existe no states
+  - Se o to_state dos transitions existe nos states
+  - O nome de cada transiction precisa estar no states
+  - Se o initial existe no states
   - Se todos os finals existe nos states
-  - se o blank existe no alfabero
 *)
-(* let verify_machine machine = *)
 
 let check_if_in_alphabet str alphabet =
   try
@@ -63,11 +61,15 @@ let check_if_in_alphabet str alphabet =
   | e -> failwith (Printf.sprintf "The elemet '%s' not in alphabet" str)
 
 let verify_machine machine =
-  Hashtbl.iter (fun state transitions ->
+  ignore (check_single_char_list machine.alphabet "alphabet");
+  ignore (check_single_char machine.blank "blank");
+  ignore (check_if_in_alphabet machine.blank machine.alphabet);
+
+  Hashtbl.iter (fun _state transitions_list ->
     List.iter (fun t -> 
       ignore (check_if_in_alphabet t.read machine.alphabet);
       ignore (check_if_in_alphabet t.write machine.alphabet);
-    ) transitions
+    ) transitions_list
   ) machine.transitions
 
 let turing_machine_from_json json =
@@ -81,10 +83,7 @@ let turing_machine_from_json json =
       Hashtbl.add transitions_tbl state trans_list)
     transitions_json;
   let chars = json |> member "alphabet" |> to_list |> List.map to_string in
-  check_single_char_list chars "alphabet";
-
   let blank = json |> member "blank" |> to_string in
-  check_single_char blank "blank";
   let machine = {
     name = json |> member "name" |> to_string;
     alphabet = chars;

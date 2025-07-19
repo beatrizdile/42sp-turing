@@ -11,16 +11,16 @@ let print_help progname =
 let () =
   let argv_list = Array.to_list Sys.argv in
   let progname = List.hd argv_list in
-  let has_help =
+  let help_input =
     List.exists (fun arg -> arg = "-h" || arg = "--help") argv_list
   in
-  let args_only =
+  let args_input =
     List.filter
       (fun arg -> arg <> progname && arg <> "-h" && arg <> "--help")
       argv_list
   in
 
-  match (has_help, args_only) with
+  match (help_input, args_input) with
   | true, _ -> print_help progname
   | false, [ jsonfile; input ] ->
       let json = Yojson.Safe.from_file jsonfile in
