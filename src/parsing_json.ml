@@ -20,16 +20,23 @@ type turing_machine = {
   transitions : (string, transitions list) Hashtbl.t;
 }
 
-let action_to_sting = function
-  | RIGHT -> "RIGHT"
-  | LEFT -> "LEFT"
+let action_to_sting = function RIGHT -> "RIGHT" | LEFT -> "LEFT"
 
 let check_single_char str field =
   if String.length str <> 1 then
-    failwith (Printf.sprintf "All elements of '%s' must be single characters" field)
+    failwith
+      (Printf.sprintf "All elements of '%s' must be single characters" field)
 
 let check_single_char_list lst field =
   List.iter (fun s -> check_single_char s field) lst
+
+let string_in_list str lst =
+  if List.exists (fun s -> s = str) lst == false then
+    failwith (Printf.sprintf "Element '%s' not found in list" str)
+
+let equal_lists l1 l2 =
+  let sort_lst lst = List.sort compare lst in
+  if sort_lst l1 <> sort_lst l2 then failwith "Lists of states are not equal"
 
 let transitions_of_json json =
   let read = json |> member "read" |> to_string in
@@ -38,13 +45,15 @@ let transitions_of_json json =
   let write = json |> member "write" |> to_string in
   check_single_char write "write";
   {
-    read = read;
+    read;
     to_state = json |> member "to_state" |> to_string;
-    write = write;
-    action = match json |> member "action" |> to_string with
-    | "LEFT" -> LEFT
-    | "RIGHT" -> RIGHT
-    | invalid_action -> failwith (Printf.sprintf "Invalid action type '%s'" invalid_action);
+    write;
+    action =
+      (match json |> member "action" |> to_string with
+      | "LEFT" -> LEFT
+      | "RIGHT" -> RIGHT
+      | invalid_action ->
+          failwith (Printf.sprintf "Invalid action type '%s'" invalid_action));
   }
 
 (* Deve verificar se
@@ -59,22 +68,36 @@ states - finals = states that MUST exist in transitions:
 *)
 
 let check_if_in_alphabet str alphabet =
-  try
-    List.find (fun letter -> letter = str) alphabet
-  with
-  | e -> failwith (Printf.sprintf "The elemet '%s' not in alphabet" str)
+  try List.find (fun letter -> letter = str) alphabet
+  with e -> failwith (Printf.sprintf "The elemet '%s' not in alphabet" str)
 
 let verify_machine machine =
   ignore (check_single_char_list machine.alphabet "alphabet");
   ignore (check_single_char machine.blank "blank");
   ignore (check_if_in_alphabet machine.blank machine.alphabet);
 
-  Hashtbl.iter (fun _state transitions_list ->
-    List.iter (fun t -> 
-      ignore (check_if_in_alphabet t.read machine.alphabet);
-      ignore (check_if_in_alphabet t.write machine.alphabet);
-    ) transitions_list
-  ) machine.transitions
+  string_in_list machine.initial machine.states;
+  List.iter
+    (fun final_state -> string_in_list final_state machine.states)
+    machine.finals;
+
+  let transitions_states =
+    Hashtbl.fold (fun state _ acc -> state :: acc) machine.transitions []
+  in
+  let states_without_finals =
+    List.filter (fun x -> not (List.mem x machine.finals)) machine.states
+  in
+  equal_lists states_without_finals transitions_states;
+
+  Hashtbl.iter
+    (fun state transitions_list ->
+      string_in_list state machine.states;
+      List.iter
+        (fun t ->
+          ignore (check_if_in_alphabet t.read machine.alphabet);
+          ignore (check_if_in_alphabet t.write machine.alphabet))
+        transitions_list)
+    machine.transitions
 
 let turing_machine_from_json json =
   let transitions_tbl = Hashtbl.create 10 in
@@ -88,15 +111,17 @@ let turing_machine_from_json json =
     transitions_json;
   let chars = json |> member "alphabet" |> to_list |> List.map to_string in
   let blank = json |> member "blank" |> to_string in
-  let machine = {
-    name = json |> member "name" |> to_string;
-    alphabet = chars;
-    blank = blank;
-    states = json |> member "states" |> to_list |> List.map to_string;
-    initial = json |> member "initial" |> to_string;
-    finals = json |> member "finals" |> to_list |> List.map to_string;
-    transitions = transitions_tbl;
-  } in
+  let machine =
+    {
+      name = json |> member "name" |> to_string;
+      alphabet = chars;
+      blank;
+      states = json |> member "states" |> to_list |> List.map to_string;
+      initial = json |> member "initial" |> to_string;
+      finals = json |> member "finals" |> to_list |> List.map to_string;
+      transitions = transitions_tbl;
+    }
+  in
   verify_machine machine;
   machine
 
