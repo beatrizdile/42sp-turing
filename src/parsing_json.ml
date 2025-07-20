@@ -95,7 +95,8 @@ let verify_machine machine =
       List.iter
         (fun t ->
           ignore (check_if_in_alphabet t.read machine.alphabet);
-          ignore (check_if_in_alphabet t.write machine.alphabet))
+          ignore (check_if_in_alphabet t.write machine.alphabet);
+          string_in_list t.to_state machine.states)
         transitions_list)
     machine.transitions
 

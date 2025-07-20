@@ -191,7 +191,7 @@ let invalid_json_transitions_to_state_that_dont_exist_in_states = {|
   "name": "test_machine",
   "alphabet": ["0", "1", "."],
   "blank": "0",
-  "states": ["dummy", "other", "another", "final", "invalid"],
+  "states": ["dummy", "other", "another", "final"],
   "initial": "dummy",
   "finals": ["other", "final"],
   "transitions": {
@@ -382,7 +382,7 @@ let test_if_all_transitions_exist_in_states () =
     "the state that is not in transitions should raise exception"
 
 let test_if_transitions_to_state_exist_in_states () =
-  Printf.printf "\n=== test_if_all_transitions_exist_in_states ===\n";
+  Printf.printf "\n=== test_if_transitions_to_state_exist_in_states ===\n";
 
   let json = Yojson.Safe.from_string invalid_json_transitions_to_state_that_dont_exist_in_states in
   assert_exception_raised
