@@ -1,4 +1,11 @@
-open Parsing_json
+open Parsing_and_validation
+(* 
+type state_machine = {
+  right: list char;
+  current: char;
+  left: list char;
+};
+ *)
 
 let print_help progname =
   Printf.printf "usage: %s [-h] jsonfile input\n" progname;
@@ -24,8 +31,10 @@ let () =
   | true, _ -> print_help progname
   | false, [ jsonfile; input ] ->
       let json = Yojson.Safe.from_file jsonfile in
-      let machine = Parsing_json.turing_machine_from_json json in
-      Parsing_json.print_turing_machine machine
+      let machine = Parsing_and_validation.turing_machine_from_json json in
+      Parsing_and_validation.print_turing_machine machine;
+      Parsing_and_validation.verify_tape input machine.alphabet
+
   | _ ->
       print_help progname;
       exit 1

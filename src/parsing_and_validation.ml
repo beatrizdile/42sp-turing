@@ -56,17 +56,6 @@ let transitions_of_json json =
           failwith (Printf.sprintf "Invalid action type '%s'" invalid_action));
   }
 
-(* Deve verificar se
-- Se o to_state dos transitions existe nos states
-- Se os states existem em transitions
-- Se todos os transitions existem nos states
-
-states - finals = states that MUST exist in transitions:
-
-["scanright", "eraseone", "subone", "skip", "HALT"] - ["HALT"]
-= ["scanright", "eraseone", "subone", "skip"] -> must be specified in transitions
-*)
-
 let check_if_in_alphabet str alphabet =
   try List.find (fun letter -> letter = str) alphabet
   with e -> failwith (Printf.sprintf "The elemet '%s' not in alphabet" str)
@@ -100,6 +89,7 @@ let verify_machine machine =
         transitions_list)
     machine.transitions
 
+
 let turing_machine_from_json json =
   let transitions_tbl = Hashtbl.create 10 in
   let transitions_json = json |> member "transitions" |> to_assoc in
@@ -125,6 +115,13 @@ let turing_machine_from_json json =
   in
   verify_machine machine;
   machine
+
+let verify_tape input alphabet =
+  let strings = List.init (String.length input) (fun i -> String.make 1 input.[i]) in
+  List.iter (
+    fun s ->
+      ignore (check_if_in_alphabet s alphabet)
+  ) strings
 
 let print_transition t =
   Printf.printf "    { read = %s; to_state = %s; write = %s; action = %s }\n"

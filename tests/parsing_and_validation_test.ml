@@ -1,4 +1,4 @@
-open Parsing_json
+open Parsing_and_validation
 open Yojson.Safe
 
 (* Test helper functions *)
@@ -395,10 +395,19 @@ let test_transition_key_not_in_states_should_throw () =
   assert_exception_raised
     (fun () -> ignore (turing_machine_from_json json))
     "transition key not in states should raise exception"
+  
+let test_verify_tape_in_alphabet () =
+  Printf.printf "\n=== test_verify_tape_in_alphabet ===\n";
+  let json = Yojson.Safe.from_string invalid_transiction_state_name in
+  let input = "aeiou" in
+  let alphabet = ["a"; "e"; "i"; "o"] in
+  assert_exception_raised
+    (fun () -> ignore (verify_tape input alphabet))
+    "input tape not in alphabet should raise exception"
 
 (* Run all tests *)
 let run_tests () =
-  Printf.printf "Starting Parsing_json tests...\n";
+  Printf.printf "Starting Parsing_and_validation tests...\n";
   Printf.printf "================================\n";
   
   test_parsing_valid_transitions_json ();
@@ -416,6 +425,7 @@ let run_tests () =
   test_if_all_transitions_exist_in_states ();
   test_if_transitions_to_state_exist_in_states ();
   test_transition_key_not_in_states_should_throw ();
+  test_verify_tape_in_alphabet ();
   
   Printf.printf "\n================================\n";
   Printf.printf "Tests completed!\n"
