@@ -2,8 +2,9 @@ SRC_DIR = src
 BUILD_DIR = build
 OUTPUT = ft_turing
 
-SRC_FILES = $(SRC_DIR)/parsing_and_validation.ml $(SRC_DIR)/ft_turing.ml
-OBJ_FILES = $(BUILD_DIR)/parsing_and_validation.cmx $(BUILD_DIR)/ft_turing.cmx
+MODULES = types parsing_and_validation execute_machine ft_turing
+SRC_FILES = $(addprefix $(SRC_DIR)/,$(addsuffix .ml,$(MODULES)))
+OBJ_FILES = $(addprefix $(BUILD_DIR)/,$(addsuffix .cmx,$(MODULES)))
 
 all: $(OUTPUT)
 
@@ -24,11 +25,11 @@ clean:
 fclean: clean
 	rm -rf $(BUILD_DIR) $(OUTPUT) tests/test_runner
 
-test: $(BUILD_DIR)/parsing_and_validation.cmo
-	opam exec -- ocamlfind ocamlc -package yojson -linkpkg -I build build/parsing_and_validation.cmo tests/parsing_and_validation_test.ml -o tests/test_runner
+test: $(BUILD_DIR)/parsing_and_validation.cmo $(BUILD_DIR)/types.cmo
+	opam exec -- ocamlfind ocamlc -package yojson -linkpkg -I build build/parsing_and_validation.cmo build/types.cmo tests/parsing_and_validation_test.ml -o tests/test_runner
 	./tests/test_runner
 
-$(BUILD_DIR)/parsing_and_validation.cmo: $(SRC_DIR)/parsing_and_validation.ml | $(BUILD_DIR)
+$(BUILD_DIR)/%.cmo: $(SRC_DIR)/%.ml | $(BUILD_DIR)
 	opam exec -- ocamlfind ocamlc -package yojson -I $(BUILD_DIR) -c -o $@ $<
 
 re: fclean all

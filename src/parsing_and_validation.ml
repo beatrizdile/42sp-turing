@@ -1,24 +1,6 @@
 open Map
 open Yojson.Safe.Util
-
-type action_type = RIGHT | LEFT
-
-type transitions = {
-  read : string;
-  to_state : string;
-  write : string;
-  action : action_type;
-}
-
-type turing_machine = {
-  name : string;
-  alphabet : string list;
-  blank : string;
-  states : string list;
-  initial : string;
-  finals : string list;
-  transitions : (string, transitions list) Hashtbl.t;
-}
+open Types
 
 let action_to_sting = function RIGHT -> "RIGHT" | LEFT -> "LEFT"
 
@@ -89,7 +71,6 @@ let verify_machine machine =
         transitions_list)
     machine.transitions
 
-
 let turing_machine_from_json json =
   let transitions_tbl = Hashtbl.create 10 in
   let transitions_json = json |> member "transitions" |> to_assoc in
@@ -117,11 +98,10 @@ let turing_machine_from_json json =
   machine
 
 let verify_tape input alphabet =
-  let strings = List.init (String.length input) (fun i -> String.make 1 input.[i]) in
-  List.iter (
-    fun s ->
-      ignore (check_if_in_alphabet s alphabet)
-  ) strings
+  let strings =
+    List.init (String.length input) (fun i -> String.make 1 input.[i])
+  in
+  List.iter (fun s -> ignore (check_if_in_alphabet s alphabet)) strings
 
 let print_transition t =
   Printf.printf "    { read = %s; to_state = %s; write = %s; action = %s }\n"

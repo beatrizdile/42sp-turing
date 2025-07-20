@@ -398,7 +398,6 @@ let test_transition_key_not_in_states_should_throw () =
   
 let test_verify_tape_in_alphabet () =
   Printf.printf "\n=== test_verify_tape_in_alphabet ===\n";
-  let json = Yojson.Safe.from_string invalid_transiction_state_name in
   let input = "aeiou" in
   let alphabet = ["a"; "e"; "i"; "o"] in
   assert_exception_raised
