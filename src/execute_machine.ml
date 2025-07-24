@@ -53,7 +53,6 @@ let execute_machine machine input =
   let tape_machine = ref (create_initial_tape_machine input machine.initial) in
   let is_running = ref true in
   while !is_running do
-    print_tape_machine !tape_machine;
     let state_transition =
       Hashtbl.find machine.transitions !tape_machine.current_state
     in
@@ -62,6 +61,7 @@ let execute_machine machine input =
         (fun transition -> transition.read = !tape_machine.current)
         state_transition
     in
+    print_tape_machine !tape_machine transition;
     tape_machine := move transition !tape_machine;
     is_running :=
       not

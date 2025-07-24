@@ -30,8 +30,8 @@ let () =
       let json = Yojson.Safe.from_file jsonfile in
       let machine = turing_machine_from_json json in
       verify_machine machine;
-      print_turing_machine machine;
       verify_tape input machine.alphabet;
+      print_turing_machine machine;
       execute_machine machine input
   | _ ->
       print_help progname;

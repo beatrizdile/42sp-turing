@@ -57,7 +57,7 @@ format-check:
 	done
 
 run: all
-	./$(OUTPUT) res/unary_sub.json 11-1=
+	./$(OUTPUT) res/unary_sub.json 111-11=
 
 .PHONY: all clean fclean re format format-check
 
