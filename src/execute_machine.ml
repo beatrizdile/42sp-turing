@@ -1,5 +1,5 @@
 open Types
-open Parsing_and_validation
+open Parsing
 
 (*
   1. Initialize tape: take the input and make into the struct

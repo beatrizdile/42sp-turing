@@ -1,4 +1,6 @@
-open Parsing_and_validation
+open Parsing
+open Validation
+open Print
 open Yojson.Safe
 
 (* Test helper functions *)
@@ -255,6 +257,38 @@ let invalid_transiction_state_name = {|
 }
 |}
 
+let invalid_read_value_name = {|
+{
+  "name": "test_machine",
+  "alphabet": ["0", "1", "."],
+  "blank": ".",
+  "states": ["q0", "HALT"],
+  "initial": "q0",
+  "finals": ["HALT"],
+  "transitions": {
+    "q0": [
+      { "read": "01", "to_state": "HALT", "write": "1", "action": "RIGHT" }
+    ]
+  }
+}
+|}
+
+let invalid_write_value_name = {|
+{
+  "name": "test_machine",
+  "alphabet": ["0", "1", "."],
+  "blank": ".",
+  "states": ["q0", "HALT"],
+  "initial": "q0",
+  "finals": ["HALT"],
+  "transitions": {
+    "q0": [
+      { "read": "0", "to_state": "HALT", "write": "10", "action": "RIGHT" }
+    ]
+  }
+}
+|}
+
 (* Test functions *)
 let test_parsing_valid_transitions_json () =
   Printf.printf "\n=== parsing_valid_transitions ===\n";
@@ -289,25 +323,17 @@ let test_blank_greater_than_one_char_should_throw () =
 let test_transitions_with_read_greater_than_one_char_should_throw () =
   Printf.printf "\n=== test_transitions_with_read_greater_than_one_char_should_throw ===\n";
   
-  let transition_read_greater_than_one = from_string {|
-    { "read": "01", "to_state": "q1", "write": "1", "action": "RIGHT" }
-  |} in
-
-  let json = transition_read_greater_than_one in
+  let json = Yojson.Safe.from_string invalid_read_value_name in
   assert_exception_raised 
-    (fun () -> ignore (transitions_of_json json))
+    (fun () -> ignore (turing_machine_from_json json))
     "transitions with a read attribute that contains multi-character elements should raise exception"
 
 let test_transitions_with_write_greater_than_one_char_should_throw () =
   Printf.printf "\n=== test_transitions_with_write_greater_than_one_char_should_throw ===\n";
   
-  let transition_read_greater_than_one = from_string {|
-    { "read": "0", "to_state": "q1", "write": "12", "action": "RIGHT" }
-  |} in
-
-  let json = transition_read_greater_than_one in
+  let json = Yojson.Safe.from_string invalid_write_value_name in
   assert_exception_raised 
-    (fun () -> ignore (transitions_of_json json))
+    (fun () -> ignore (turing_machine_from_json json))
     "transitions with a write attribute that contains multi-character elements should raise exception"
 
 

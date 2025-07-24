@@ -1,6 +1,8 @@
 open Types
-open Parsing_and_validation
+open Parsing
+open Validation
 open Execute_machine
+open Print
 
 let print_help progname =
   Printf.printf "usage: %s [-h] jsonfile input\n" progname;
@@ -26,10 +28,10 @@ let () =
   | true, _ -> print_help progname
   | false, [ jsonfile; input ] ->
       let json = Yojson.Safe.from_file jsonfile in
-      let machine = Parsing_and_validation.turing_machine_from_json json in
-      Parsing_and_validation.print_turing_machine machine;
-      Parsing_and_validation.verify_tape input machine.alphabet;
-      Execute_machine.execute_machine machine input
+      let machine = turing_machine_from_json json in
+      print_turing_machine machine;
+      verify_tape input machine.alphabet;
+      execute_machine machine input
   | _ ->
       print_help progname;
       exit 1
