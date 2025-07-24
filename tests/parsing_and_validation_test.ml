@@ -272,7 +272,7 @@ let test_parsing_valid_transitions_json () =
     { "read": "0", "to_state": "q1", "write": "1", "action": "RIGHT" }
   |} in
   
-  let transition = transitions_of_json transition_json in
+  let transition = transition_from_json transition_json in
   
   assert_equal "0" transition.read "transition read field";
   assert_equal "q1" transition.to_state "transition to_state field";
@@ -283,7 +283,7 @@ let test_alphabet_with_elements_greater_than_single_letter () =
   Printf.printf "\n=== test_alphabet_with_elements_greater_than_single_letter ===\n";
   let json = Yojson.Safe.from_string invalid_alphabet_json_string in
   assert_exception_raised 
-    (fun () -> ignore (turing_machine_from_json json))
+    (fun () -> ignore (json |> turing_machine_from_json |> verify_machine))
     "the alphabet attribute that contains multi-character strings should raise exception"
 
 (* Blank definition: The blank character, must be part of the alphabet, must NOT be part of the input *)
@@ -292,7 +292,7 @@ let test_blank_greater_than_one_char_should_throw () =
 
   let json = Yojson.Safe.from_string multi_char_blank_json_string in
   assert_exception_raised 
-    (fun () -> ignore (turing_machine_from_json json))
+    (fun () -> ignore (json |> turing_machine_from_json |> verify_machine))
     "the blank attribute that contains multi-character elements should raise exception"
 
 let test_transitions_with_read_greater_than_one_char_should_throw () =
@@ -300,7 +300,7 @@ let test_transitions_with_read_greater_than_one_char_should_throw () =
   
   let json = Yojson.Safe.from_string invalid_read_value_name in
   assert_exception_raised 
-    (fun () -> ignore (turing_machine_from_json json))
+    (fun () -> ignore (json |> turing_machine_from_json |> verify_machine))
     "transitions with a read attribute that contains multi-character elements should raise exception"
 
 let test_transitions_with_write_greater_than_one_char_should_throw () =
@@ -308,7 +308,7 @@ let test_transitions_with_write_greater_than_one_char_should_throw () =
   
   let json = Yojson.Safe.from_string invalid_write_value_name in
   assert_exception_raised 
-    (fun () -> ignore (turing_machine_from_json json))
+    (fun () -> ignore (json |> turing_machine_from_json |> verify_machine))
     "transitions with a write attribute that contains multi-character elements should raise exception"
 
 
@@ -321,7 +321,7 @@ let test_transitions_with_invalid_action_should_throw () =
 
   let json = transition_read_greater_than_one in
   assert_exception_raised 
-    (fun () -> ignore (transitions_of_json json))
+    (fun () -> ignore (transitions_from_json json))
     "transitions with an action different than LEFT or RIGHT should raise exception"
 
 let test_read_not_in_alphabet_should_throw () =
@@ -329,7 +329,7 @@ let test_read_not_in_alphabet_should_throw () =
 
   let json = Yojson.Safe.from_string invalid_json_read_not_in_alphabet_string in
   assert_exception_raised 
-    (fun () -> ignore (turing_machine_from_json json))
+    (fun () -> ignore (json |> turing_machine_from_json |> verify_machine))
     "the read attribute that is not in alphabet should raise exception"
 
 let test_write_not_in_alphabet_should_throw () =
@@ -337,7 +337,7 @@ let test_write_not_in_alphabet_should_throw () =
 
   let json = Yojson.Safe.from_string invalid_json_write_not_in_alphabet_string in
   assert_exception_raised 
-    (fun () -> ignore (turing_machine_from_json json))
+    (fun () -> ignore (json |> turing_machine_from_json |> verify_machine))
     "the write attribute that is not in alphabet should raise exception"
 
 let test_blank_not_in_alphabet_should_throw () =
@@ -345,7 +345,7 @@ let test_blank_not_in_alphabet_should_throw () =
 
   let json = Yojson.Safe.from_string invalid_json_blank_not_in_alphabet_string in
   assert_exception_raised 
-    (fun () -> ignore (turing_machine_from_json json))
+    (fun () -> ignore (json |> turing_machine_from_json |> verify_machine))
     "the blank attribute that is not in alphabet should raise exception"
 
 let test_initial_state_not_in_states_list_should_throw () =
@@ -353,7 +353,7 @@ let test_initial_state_not_in_states_list_should_throw () =
 
   let json = Yojson.Safe.from_string invalid_json_initial_state_not_in_states_list in
   assert_exception_raised 
-    (fun () -> ignore (turing_machine_from_json json))
+    (fun () -> ignore (json |> turing_machine_from_json |> verify_machine))
     "the initial state that is not in states list should raise exception"
 
 let test_finals_states_not_in_states_list_should_throw () =
@@ -361,7 +361,7 @@ let test_finals_states_not_in_states_list_should_throw () =
 
   let json = Yojson.Safe.from_string invalid_json_finals_states_not_in_states_list in
   assert_exception_raised
-    (fun () -> ignore (turing_machine_from_json json))
+    (fun () -> ignore (json |> turing_machine_from_json |> verify_machine))
     "the final state that is not in states list should raise exception"
 
 (* Important: the final states don't need to be specified in "transitions",
@@ -371,7 +371,7 @@ let test_if_all_states_exist_in_transitions () =
 
   let json = Yojson.Safe.from_string invalid_json_states_that_dont_exist_in_transitions in
   assert_exception_raised
-    (fun () -> ignore (turing_machine_from_json json))
+    (fun () -> ignore (json |> turing_machine_from_json |> verify_machine))
     "the state that is not in transitions should raise exception"
 
 let test_if_all_transitions_exist_in_states () =
@@ -379,7 +379,7 @@ let test_if_all_transitions_exist_in_states () =
 
   let json = Yojson.Safe.from_string invalid_json_transitions_that_dont_exist_in_states in
   assert_exception_raised
-    (fun () -> ignore (turing_machine_from_json json))
+    (fun () -> ignore (json |> turing_machine_from_json |> verify_machine))
     "the state that is not in transitions should raise exception"
 
 let test_if_transitions_to_state_exist_in_states () =
@@ -387,14 +387,14 @@ let test_if_transitions_to_state_exist_in_states () =
 
   let json = Yojson.Safe.from_string invalid_json_transitions_to_state_that_dont_exist_in_states in
   assert_exception_raised
-    (fun () -> ignore (turing_machine_from_json json))
+    (fun () -> ignore (json |> turing_machine_from_json |> verify_machine))
     "the transitions.to_state that is not in states should raise exception"
 
 let test_transition_key_not_in_states_should_throw () =
   Printf.printf "\n=== test_transition_key_not_in_states_should_throw ===\n";
   let json = Yojson.Safe.from_string invalid_transiction_state_name in
   assert_exception_raised
-    (fun () -> ignore (turing_machine_from_json json))
+    (fun () -> ignore (json |> turing_machine_from_json |> verify_machine))
     "transition key not in states should raise exception"
   
 let test_verify_tape_in_alphabet () =

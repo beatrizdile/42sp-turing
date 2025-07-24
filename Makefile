@@ -56,6 +56,9 @@ format-check:
 		opam exec -- ocamlformat --check $$file; \
 	done
 
+run: all
+	./$(OUTPUT) res/unary_sub.json 11-1=
+
 .PHONY: all clean fclean re format format-check
 
 # TODO: install opam to run on evaluator's machine

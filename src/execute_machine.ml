@@ -1,5 +1,6 @@
 open Types
 open Parsing
+open Print
 
 (*
   1. Initialize tape: take the input and make into the struct
@@ -47,12 +48,6 @@ let move transition tape_machine =
         current;
         right;
       }
-
-let print_tape_machine tape_machine =
-  let left_str = String.concat " " tape_machine.left in
-  let right_str = String.concat " " tape_machine.right in
-  Printf.printf "[%s] (%s) [%s] {%s}\n" left_str tape_machine.current right_str
-    tape_machine.current_state
 
 let execute_machine machine input =
   let tape_machine = ref (create_initial_tape_machine input machine.initial) in

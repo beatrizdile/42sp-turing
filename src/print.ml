@@ -31,3 +31,9 @@ let print_turing_machine tm =
             t.write (action_to_sting t.action))
         transitions)
     tm.transitions
+
+let print_tape_machine tape_machine =
+  let left_str = String.concat " " tape_machine.left in
+  let right_str = String.concat " " tape_machine.right in
+  Printf.printf "[%s] (%s) [%s] {%s}\n" left_str tape_machine.current right_str
+    tape_machine.current_state

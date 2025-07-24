@@ -29,6 +29,7 @@ let () =
   | false, [ jsonfile; input ] ->
       let json = Yojson.Safe.from_file jsonfile in
       let machine = turing_machine_from_json json in
+      verify_machine machine;
       print_turing_machine machine;
       verify_tape input machine.alphabet;
       execute_machine machine input
