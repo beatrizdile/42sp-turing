@@ -6,33 +6,38 @@ MODULES = types validation parsing print execute_machine ft_turing
 SRC_FILES = $(addprefix $(SRC_DIR)/,$(addsuffix .ml,$(MODULES)))
 OBJ_FILES = $(addprefix $(BUILD_DIR)/,$(addsuffix .cmx,$(MODULES)))
 
-TEST_MODULES = $(filter-out ft_turing,$(MODULES))
-TEST_SRC_FILES = $(addprefix $(SRC_DIR)/,$(addsuffix .ml,$(TEST_MODULES)))
-TEST_OBJ_FILES = $(addprefix $(BUILD_DIR)/,$(addsuffix .cmo,$(TEST_MODULES)))
-TEST_RUNNER_SRC = tests/parsing_and_validation_test.ml
+TEST_DIR = tests
+TEST_FILES = $(filter-out ft_turing,$(MODULES)) test_utils parsing_and_validation_test
+TEST_OBJ_FILES = $(addprefix $(BUILD_DIR)/,$(addsuffix .cmx,$(TEST_FILES)))
 
 all: $(OUTPUT)
 
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
+$(OUTPUT): $(OBJ_FILES)
+	opam exec -- ocamlfind ocamlopt -package yojson -linkpkg -I $(BUILD_DIR) -o $@ $(OBJ_FILES)
+
 $(BUILD_DIR)/%.cmx: $(SRC_DIR)/%.ml | $(BUILD_DIR)
 	opam exec -- ocamlfind ocamlopt -package yojson -I $(BUILD_DIR) -c -o $@ $<
 
-$(OUTPUT): $(OBJ_FILES)
-	opam exec -- ocamlfind ocamlopt -package yojson -linkpkg -I $(BUILD_DIR) -o $@ $(OBJ_FILES)
+$(BUILD_DIR)/%.cmx: $(TEST_DIR)/%.ml | $(BUILD_DIR)
+	opam exec -- ocamlfind ocamlopt -package yojson -I $(BUILD_DIR) -c -o $@ $<
 
 $(BUILD_DIR)/%.cmo: $(SRC_DIR)/%.ml | $(BUILD_DIR)
 	opam exec -- ocamlfind ocamlc -package yojson -I $(BUILD_DIR) -c -o $@ $<
 
+$(BUILD_DIR)/%.cmo: $(TEST_DIR)/%.ml | $(BUILD_DIR)
+	opam exec -- ocamlfind ocamlc -package yojson -I $(BUILD_DIR) -c -o $@ $<
+
 clean:
-	rm -f $(BUILD_DIR)/*.cmx $(BUILD_DIR)/*.o $(BUILD_DIR)/*.cmi tests/*.cmi tests/*.cmo 
+	rm -f $(BUILD_DIR)/*.cmi $(BUILD_DIR)/*.cmo $(BUILD_DIR)/*.cmx $(BUILD_DIR)/*.o
 
 fclean: clean
 	rm -rf $(BUILD_DIR) $(OUTPUT) tests/test_runner
 
 test: $(TEST_OBJ_FILES)
-	opam exec -- ocamlfind ocamlc -package yojson -linkpkg -I $(BUILD_DIR) $(TEST_OBJ_FILES) $(TEST_RUNNER_SRC) -o tests/test_runner
+	opam exec -- ocamlfind ocamlopt -package yojson -linkpkg -I $(BUILD_DIR) $(TEST_OBJ_FILES) -o tests/test_runner
 	./tests/test_runner
 
 re: fclean all
