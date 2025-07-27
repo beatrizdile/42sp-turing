@@ -1,0 +1,46 @@
+{
+  "name": "even_odd",
+  "alphabet": ["0", ".", "n", "y"],
+  "blank": ".",
+  "states": [
+    "even",
+    "odd",
+    "YES",
+    "NO"
+  ],
+  "initial": "even",
+  "finals": [
+    "YES",
+    "NO"
+  ],
+  "transitions": {
+    "odd": [
+      {
+        "read": "0",
+        "to_state": "even",
+        "write": "0",
+        "action": "RIGHT"
+      },
+      {
+        "read": ".",
+        "to_state": "NO",
+        "write": "n",
+        "action": "RIGHT"
+      }
+    ],
+    "even": [
+      {
+        "read": "0",
+        "to_state": "odd",
+        "write": "0",
+        "action": "RIGHT"
+      },
+      {
+        "read": ".",
+        "to_state": "YES",
+        "write": "y",
+        "action": "RIGHT"
+      }
+    ]
+  }
+}

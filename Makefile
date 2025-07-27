@@ -62,3 +62,6 @@ run: all
 .PHONY: all clean fclean re format format-check
 
 # TODO: install opam to run on evaluator's machine
+# TODO: insert dots at the beginning and end
+# TODO: If for some reason the machine is blocked, you
+# must detect it and inform the user of your program of what happened.
