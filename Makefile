@@ -10,6 +10,8 @@ TEST_DIR = tests
 TEST_FILES = $(filter-out ft_turing,$(MODULES)) test_utils parsing_and_validation_test
 TEST_OBJ_FILES = $(addprefix $(BUILD_DIR)/,$(addsuffix .cmx,$(TEST_FILES)))
 
+all: check-deps $(OUTPUT)
+
 check-deps:
 	@echo "Checking dependencies..."
 	@if ! command -v ocaml >/dev/null 2>&1; then \
@@ -87,8 +89,6 @@ install-deps:
 	fi
 	@eval $$(opam env) && opam install -y yojson ocamlfind ocamlformat
 	@echo "Manual installation completed!"
-
-all: check-deps $(OUTPUT)
 
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)

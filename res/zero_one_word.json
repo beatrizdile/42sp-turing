@@ -3,18 +3,39 @@
   "alphabet": ["1", "0", ".", "n", "y"],
   "blank": ".",
   "states": [
+    "first_zero",
     "scan_zero",
     "scan_one",
     "finish_no",
     "YES",
     "NO"
   ],
-  "initial": "scan_zero",
+  "initial": "first_zero",
   "finals": [
     "YES",
     "NO"
   ],
   "transitions": {
+    "first_zero": [
+      {
+        "read": "0",
+        "to_state": "scan_zero",
+        "write": "0",
+        "action": "RIGHT"
+      },
+      {
+        "read": "1",
+        "to_state": "finish_no",
+        "write": "1",
+        "action": "RIGHT"
+      },
+      {
+        "read": ".",
+        "to_state": "NO",
+        "write": "n",
+        "action": "LEFT"
+      }
+    ],
     "scan_zero": [
       {
         "read": "0",
