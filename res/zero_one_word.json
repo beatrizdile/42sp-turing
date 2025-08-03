@@ -48,6 +48,12 @@
         "to_state": "scan_one",
         "write": "1",
         "action": "RIGHT"
+      },
+      {
+        "read": ".",
+        "to_state": "NO",
+        "write": "n",
+        "action": "LEFT"
       }
     ],
     "scan_one": [

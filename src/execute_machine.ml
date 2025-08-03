@@ -67,12 +67,21 @@ let execute_machine machine input =
   let is_running = ref true in
   while !is_running do
     let state_transition =
-      Hashtbl.find machine.transitions !tape_machine.current_state
+      try
+        Hashtbl.find machine.transitions !tape_machine.current_state
+      with Not_found ->
+        Printf.eprintf "Error: No transitions found for state '%s'\n" !tape_machine.current_state;
+        exit 1
     in
     let transition =
-      List.find
-        (fun transition -> transition.read = !tape_machine.current)
-        state_transition
+      try
+        List.find
+          (fun transition -> transition.read = !tape_machine.current)
+          state_transition
+      with Not_found ->
+        Printf.eprintf "Error: No transition found for state '%s' reading symbol '%s'\n" 
+          !tape_machine.current_state !tape_machine.current;
+        exit 1
     in
     print_tape_state_machine !tape_machine transition;
     tape_machine := move transition !tape_machine machine.blank;
