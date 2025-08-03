@@ -61,11 +61,13 @@ let execute_machine machine input =
         (fun transition -> transition.read = !tape_machine.current)
         state_transition
     in
-    print_tape_machine !tape_machine transition;
+    print_tape_state_machine !tape_machine transition;
     tape_machine := move transition !tape_machine;
     is_running :=
       not
         (List.exists
            (fun final -> final = !tape_machine.current_state)
            machine.finals)
-  done
+  done;
+  print_tape_machine !tape_machine;
+  Printf.printf "\n"

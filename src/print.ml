@@ -30,12 +30,15 @@ let print_turing_machine tm =
     tm.transitions;
   Printf.printf "%s\n" border
 
-let print_tape_machine tape_machine transition =
+let print_tape_machine tape_machine =
   let left_str = String.concat "" tape_machine.left in
   let right_str = String.concat "" tape_machine.right in
   let string_tape =
     Printf.sprintf "%s<%s>%s" left_str tape_machine.current right_str
   in
   let dots = String.make (String.length string_tape) '.' in
-  Printf.printf "[%s%s] " string_tape dots;
+  Printf.printf "[%s%s] " string_tape dots
+
+let print_tape_state_machine tape_machine transition =
+  print_tape_machine tape_machine;
   print_transition tape_machine.current_state transition
